@@ -124,8 +124,7 @@ async function fetchAndBroadcastData() {
 // Add a new endpoint for OpenAI API requests
 app.post('/api/callOpenAI', async (req, res) => {
   const { prompt, context } = req.body; // Expecting prompt and context in the request body
-  const OpenAIapiKey = "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"
-
+  const OpenAIapiKey = process.env.OPENAI_API_KEY
   console.log("Called openai api")
 
   const url = "https://api.openai.com/v1/chat/completions";
