@@ -20,7 +20,7 @@ const client = mqtt.connect(options);
 
 client.on('connect', () => {
   console.log('Connected to TTN MQTT');
-  
+
   const uplinkTopic = 'v3/+/devices/+/up';
   client.subscribe(uplinkTopic, (err) => {
     if (err) {
@@ -76,6 +76,17 @@ app.get('/data', (req, res) => {
     res.json(latestData);
   } else {
     res.status(404).json({ error: 'No data available yet.' });
+  }
+});
+
+app.get('/Test', (req, res) => {
+  try {
+    res.json({ user: 'Test' });
+    res.status(200)
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ error: 'Error,' + err.message });
+
   }
 });
 
