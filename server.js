@@ -5,6 +5,8 @@ require('dotenv').config();
 
 const mqtt = require('mqtt');
 
+var latestData = null;
+
 const options = {
   // TTN V3 MQTT broker address
   host: process.env.TTN_HOST || 'eu1.cloud.thethings.network',
@@ -72,11 +74,17 @@ app.get('/', (req, res) => {
 
 // Express route to fetch the latest data
 app.get('/data', (req, res) => {
-  if (latestData) {
-    res.json(latestData);
-  } else {
-    res.status(404).json({ error: 'No data available yet.' });
+  try {
+    if (latestData) {
+      res.json(latestData);
+    } else {
+      res.status(404).json({ error: 'No data available yet.' });
+    }
+  } catch (error) {
+    console.error('Error processing message:', error);
   }
+
+
 });
 
 app.get('/Test', (req, res) => {
