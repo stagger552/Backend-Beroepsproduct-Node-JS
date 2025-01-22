@@ -71,53 +71,18 @@ app.get('/', (req, res) => {
 });
 
 // Express route to fetch the latest data
-app.get('/data', (req, res) => {
-  if (latestData) {
-    res.json(latestData);
-  } else {
-    res.status(404).json({ error: 'No data available yet.' });
-  }
-});
+// app.get('/data', (req, res) => {
+//   if (latestData) {
+//     res.json(latestData);
+//   } else {
+//     res.status(404).json({ error: 'No data available yet.' });
+//   }
+// });
 
 // Add a new endpoint for OpenAI API requests
-app.post('/api/callOpenAI', async (req, res) => {
-  const { prompt, context } = req.body; // Expecting prompt and context in the request body
-  const OpenAIapiKey = process.env.OPENAI_API_KEY; // Use the API key from the environment variable
-
-  const url = "https://api.openai.com/v1/chat/completions";
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${OpenAIapiKey}`
-  };
-  const body = {
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "user", content: context },
-      { role: "user", content: prompt }
-    ]
-  };
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(body)
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    res.json(data.choices[0].message.content); // Send the AI response back to the client
-  } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    res.status(500).json({ error: "Error calling OpenAI API" });
-  }
-});
 
 // Start server
-const port = 5000;
+const port = 3000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
