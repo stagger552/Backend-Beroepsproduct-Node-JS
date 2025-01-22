@@ -3,56 +3,56 @@ const app = express();
 require('dotenv').config();
 
 
-// const mqtt = require('mqtt');
+const mqtt = require('mqtt');
 
-// const options = {
-//   // TTN V3 MQTT broker address
-//   host: process.env.TTN_HOST || 'eu1.cloud.thethings.network',
-//   port: 1883,  // Unsecure port
-//   protocol: 'mqtt', // Unsecure protocol
+const options = {
+  // TTN V3 MQTT broker address
+  host: process.env.TTN_HOST || 'eu1.cloud.thethings.network',
+  port: 1883,  // Unsecure port
+  protocol: 'mqtt', // Unsecure protocol
 
-//   // Your credentials
-//   username: "esp32lorawanboei@ttn",
-//   password: process.env.TTN_APIKEY,
-// };
-// // Connect to TTN MQTT broker
-// const client = mqtt.connect(options);
+  // Your credentials
+  username: "esp32lorawanboei@ttn",
+  password: process.env.TTN_APIKEY,
+};
+// Connect to TTN MQTT broker
+const client = mqtt.connect(options);
 
-// client.on('connect', () => {
-//   console.log('Connected to TTN MQTT');
+client.on('connect', () => {
+  console.log('Connected to TTN MQTT');
   
-//   const uplinkTopic = 'v3/+/devices/+/up';
-//   client.subscribe(uplinkTopic, (err) => {
-//     if (err) {
-//       console.error('Subscription error:', err);
-//     } else {
-//       console.log('Subscribed to device uplink topic');
-//     }
-//   });
-// });
+  const uplinkTopic = 'v3/+/devices/+/up';
+  client.subscribe(uplinkTopic, (err) => {
+    if (err) {
+      console.error('Subscription error:', err);
+    } else {
+      console.log('Subscribed to device uplink topic');
+    }
+  });
+});
 
-// client.on('message', (topic, message) => {
-//   try {
-//     const payload = JSON.parse(message.toString());
-//     const deviceId = payload.end_device_ids.device_id;
-//     const receivedAt = payload.received_at;
-//     const fPort = payload.uplink_message.f_port;
-//     const data = payload.uplink_message.frm_payload;
-//     const decodedPayload = payload.uplink_message.decoded_payload;
+client.on('message', (topic, message) => {
+  try {
+    const payload = JSON.parse(message.toString());
+    const deviceId = payload.end_device_ids.device_id;
+    const receivedAt = payload.received_at;
+    const fPort = payload.uplink_message.f_port;
+    const data = payload.uplink_message.frm_payload;
+    const decodedPayload = payload.uplink_message.decoded_payload;
 
-//     latestData = {
-//       deviceId,
-//       receivedAt,
-//       fPort,
-//       data,
-//       decodedPayload,
-//     };
+    latestData = {
+      deviceId,
+      receivedAt,
+      fPort,
+      data,
+      decodedPayload,
+    };
 
-//     console.log('New data received:', latestData);
-//   } catch (error) {
-//     console.error('Error processing message:', error);
-//   }
-// });
+    console.log('New data received:', latestData);
+  } catch (error) {
+    console.error('Error processing message:', error);
+  }
+});
 
 
 
@@ -71,18 +71,18 @@ app.get('/', (req, res) => {
 });
 
 // Express route to fetch the latest data
-// app.get('/data', (req, res) => {
-//   if (latestData) {
-//     res.json(latestData);
-//   } else {
-//     res.status(404).json({ error: 'No data available yet.' });
-//   }
-// });
+app.get('/data', (req, res) => {
+  if (latestData) {
+    res.json(latestData);
+  } else {
+    res.status(404).json({ error: 'No data available yet.' });
+  }
+});
 
 // Add a new endpoint for OpenAI API requests
 
 // Start server
-const port = 3000;
+const port = 5000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
