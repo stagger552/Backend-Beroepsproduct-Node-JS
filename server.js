@@ -1,66 +1,65 @@
-require('dotenv').config();
 const express = require('express');
 const app = express();
-const WebSocket = require('ws');
-const http = require('http');
-const cors = require('cors');
+require('dotenv').config();
 
-const i18n = require('i18n');
+// const mqtt = require('mqtt');
 
-// Create an HTTP server
-const server = http.createServer(app);
+// const options = {
+//   // TTN V3 MQTT broker address
+//   host: process.env.TTN_HOST || 'eu1.cloud.thethings.network',
+//   port: 1883,  // Unsecure port
+//   protocol: 'mqtt', // Unsecure protocol
 
-// Create a WebSocket server
-const wss = new WebSocket.Server({ server });
+//   // Your credentials
+//   username: "esp32lorawanboei@ttn",
+//   password: process.env.TTN_APIKEY,
+// };
+// // Connect to TTN MQTT broker
+// const client = mqtt.connect(options);
 
-console.log(process.env.OPENAI_API_KEY); // outputs "localhost"
+// client.on('connect', () => {
+//   console.log('Connected to TTN MQTT');
+  
+//   const uplinkTopic = 'v3/+/devices/+/up';
+//   client.subscribe(uplinkTopic, (err) => {
+//     if (err) {
+//       console.error('Subscription error:', err);
+//     } else {
+//       console.log('Subscribed to device uplink topic');
+//     }
+//   });
+// });
 
-// WebSocket connections
-const clients = new Set();
+// client.on('message', (topic, message) => {
+//   try {
+//     const payload = JSON.parse(message.toString());
+//     const deviceId = payload.end_device_ids.device_id;
+//     const receivedAt = payload.received_at;
+//     const fPort = payload.uplink_message.f_port;
+//     const data = payload.uplink_message.frm_payload;
+//     const decodedPayload = payload.uplink_message.decoded_payload;
 
-// Handle WebSocket connections
-wss.on('connection', (ws) => {
-  console.log('New client connected');
-  clients.add(ws);
+//     latestData = {
+//       deviceId,
+//       receivedAt,
+//       fPort,
+//       data,
+//       decodedPayload,
+//     };
 
-  // Als dit de eerste client is, start de updates
-  if (clients.size === 1) {
-    startBoeiDataUpdates();
-  }
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-    clients.delete(ws);
-
-    // Als er geen clients meer zijn, stop de updates
-    if (clients.size === 0 && updateInterval) {
-      clearInterval(updateInterval);
-      updateInterval = null;
-    }
-  });
-});
-
-// Function to send data to all connected WebSocket clients
-function broadcastToClients(data) {
-  clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      try {
-        client.send(JSON.stringify(data));
-      } catch (error) {
-        console.error("Error sending to client:", error);
-      }
-    }
-  });
-}
-
-app.use(express.json());
+//     console.log('New data received:', latestData);
+//   } catch (error) {
+//     console.error('Error processing message:', error);
+//   }
+// });
 
 
-app.get('/lang/:lang', (req, res) => {
-  const lang = req.params.lang;
-  i18n.setLocale(lang);
-  res.render('index', { title: 'Home' });
-});
+
+// app.get('/lang/:lang', (req, res) => {
+//   const lang = req.params.lang;
+//   i18n.setLocale(lang);
+//   res.render('index', { title: 'Home' });
+// });
 
 // Routes
 app.get('/', (req, res) => {
@@ -70,62 +69,19 @@ app.get('/', (req, res) => {
   res.render('index', { title });
 });
 
-app.get('/api/getDashboard', (req, res) => {
-  const title = 'Dashboard';
-
-
+// Express route to fetch the latest data
+app.get('/data', (req, res) => {
+  if (latestData) {
+    res.json(latestData);
+  } else {
+    res.status(404).json({ error: 'No data available yet.' });
+  }
 });
-
-app.get('/api/getBoeiData', (req, res) => {
-  // Start de live data updates
-  startBoeiDataUpdates();
-  res.json({ message: "Started live boei data updates" });
-});
-
-// Functie om data van de boei API op te halen
-async function fetchBoeiData() {
-  try {
-    const response = await fetch('https://jouw-boei-api-endpoint.com/data');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching boei data:", error);
-    return null;
-  }
-}
-
-let updateInterval = null;
-
-// Functie om de live updates te starten
-function startBoeiDataUpdates() {
-  // Als er al een interval loopt, niet nog een starten
-  if (updateInterval) {
-    return;
-  }
-
-  // Direct eerste data ophalen en versturen
-  fetchAndBroadcastData();
-
-  // Start interval voor periodieke updates
-  updateInterval = setInterval(fetchAndBroadcastData, 1000); // Elke seconde
-}
-
-// Functie om data op te halen en te versturen
-async function fetchAndBroadcastData() {
-  const boeiData = await fetchBoeiData();
-  if (boeiData) {
-    broadcastToClients(boeiData);
-  }
-}
 
 // Add a new endpoint for OpenAI API requests
 app.post('/api/callOpenAI', async (req, res) => {
   const { prompt, context } = req.body; // Expecting prompt and context in the request body
-  const OpenAIapiKey = process.env.OPENAI_API_KEY
-  console.log("Called openai api")
+  const OpenAIapiKey = process.env.OPENAI_API_KEY; // Use the API key from the environment variable
 
   const url = "https://api.openai.com/v1/chat/completions";
   const headers = {
@@ -160,7 +116,7 @@ app.post('/api/callOpenAI', async (req, res) => {
 });
 
 // Start server
-const port = process.env.PORT || 5000;
+const port = 5000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
