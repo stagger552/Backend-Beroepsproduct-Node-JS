@@ -5,7 +5,19 @@ require('dotenv').config();
 
 const mqtt = require('mqtt');
 
-var latestData = null;
+var latestData = {
+  "deviceId": "boeiesp32groep2",
+  "receivedAt": "2025-01-21T11:31:34.204499418Z",
+  "fPort": 1,
+  "data": "CCEBJwYBAAAAAAAAAAAAAAAA",
+  "decodedPayload": {
+    "Latitude": "Geen waarde",
+    "Longitude": 0,
+    "pH": 15.37,
+    "temperature": 20.81,
+    "turbidity": 2.95
+  }
+}
 
 const options = {
   // TTN V3 MQTT broker address
