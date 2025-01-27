@@ -19,7 +19,7 @@ require('dotenv').config();
 
 // client.on('connect', () => {
 //   console.log('Connected to TTN MQTT');
-  
+
 //   const uplinkTopic = 'v3/+/devices/+/up';
 //   client.subscribe(uplinkTopic, (err) => {
 //     if (err) {
@@ -65,7 +65,7 @@ require('dotenv').config();
 app.get('/', (req, res) => {
   const title = 'Home';
 
-  
+
   // Render the index.ejs view with the title
   res.render('index', { title });
 });
@@ -81,23 +81,24 @@ app.get('/data', (req, res) => {
 
 // Add a new endpoint for OpenAI API requests
 app.post('/callOpenAI', async (req, res) => {
-  const { prompt, context } = req.body; // Expecting prompt and context in the request body
-  const OpenAIapiKey = process.env.OPENAI_API_KEY; // Use the API key from the environment variable
-
-  const url = "https://api.openai.com/v1/chat/completions";
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${OpenAIapiKey}`
-  };
-  const body = {
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "user", content: context },
-      { role: "user", content: prompt }
-    ]
-  };
-
   try {
+    const { prompt, context } = req.body; // Expecting prompt and context in the request body
+    const Sleutel = "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"; // Use the API key from the environment variable
+
+    const url = "https://api.openai.com/v1/chat/completions";
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${Sleutel}`
+    };
+    const body = {
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "user", content: context },
+        { role: "user", content: prompt }
+      ]
+    };
+
+
     const response = await fetch(url, {
       method: "POST",
       headers: headers,
@@ -112,7 +113,7 @@ app.post('/callOpenAI', async (req, res) => {
     res.json(data.choices[0].message.content); // Send the AI response back to the client
   } catch (error) {
     console.error("Error calling OpenAI API:", error);
-    res.status(500).json({ error: "Error calling OpenAI API" });
+    res.status(500).json({ error: "Error calling OpenAI API" }, {errorMessage : error.message}, {input : prompt.text});
   }
 });
 
